@@ -1,0 +1,48 @@
+pollutantmean <- function(directory = "specdata" , pollutant, id = 1:332) {
+    filelist <- list.files(directory)
+	datavalues <- numeric()
+	if (pollutant == "nitrate"){
+		poll <- 3
+	}
+	else{
+		poll <- 2
+	}
+	for (i in id){
+		filename <- filelist[i]
+		fileread <- read.csv(file.path(directory,filename))
+		columndata <- fileread[,poll]
+		datavalues <- c(datavalues, columndata)
+	}
+	print(mean(datavalues, na.rm = TRUE))
+}
+
+complete <- function(directory = "specdata" ,  id = 1:332) {
+    filelist <- list.files(directory)
+	datavalues <- data.frame(id = numeric(),
+					nobs = numeric())
+	for (i in id){
+		filename <- filelist[i]
+		fileread <- read.csv(file.path(directory,filename))
+		fileread <- na.omit(fileread)
+		nob <- NROW(fileread)
+		datavalues <- rbind(datavalues, data.frame(id = i, nobs = nob)) 
+		}
+	print(datavalues)
+}
+
+corr <- function(directory = "specdata", threshold = 0) {
+	id <- 1:332
+	filelist <- list.files(directory)
+	corrvalues <- numeric()
+	for (i in id){
+		filename <- filelist[i]
+		fileread <- read.csv(file.path(directory,filename))
+		fileread <- na.omit(fileread)
+		nob <- NROW(fileread)
+		if(nob >= threshold){
+			corr <- cor(fileread[,3], fileread[,2])
+			corrvalues <- c(corrvalues, corr)
+		} 
+	}
+	return(signif(corrvalues, digits = 4))
+}
