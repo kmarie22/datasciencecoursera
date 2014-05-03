@@ -1,4 +1,4 @@
-acs <- read.csv("getdata_data_ss06hid")
+<-acs <- read.csv("getdata_data_ss06hid")
 agricultureLogical <- (acs$ACR >=3 & acs$AGS >=6)
 which(agricultureLogical)
 
