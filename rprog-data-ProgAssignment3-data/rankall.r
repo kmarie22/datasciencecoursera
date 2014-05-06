@@ -1,11 +1,14 @@
-rankhospital <- function(state,outcometest, num="best"){
+rankall <- function(outcometest, num="best"){
   outcome <- read.csv("outcome-of-care-measures.csv", colClasses = "character")
   outcomeCols <- c(2,7,11,17,23)
   outcomeShort <- outcome[,outcomeCols]
   outcomes <- c("heart attack", "heart failure", "pneumonia")
   names(outcomeShort) <- c("Name", "State", outcomes)
-  if(! state %in% outcomeShort$State) stop("invalid state")
   if (! outcometest %in% outcomes) stop("Invalid outcome")
+  statelist <- unique(outcomeShort$State)
+  statelist <- statelist[order(statelist)]
+  stateranklist <- data.frame("hospital" = character(), "state"= character(), stringsAsFactors=FALSE)
+  for(state in statelist){
   statedata <- outcomeShort[outcomeShort$State == state,]
   names(statedata) <- names(outcomeShort)
   if (outcometest == "heart attack") stateOutcome = c(1,3)
@@ -14,10 +17,13 @@ rankhospital <- function(state,outcometest, num="best"){
   stateOutcomeData <- statedata[stateOutcome]
   stateOutcomeData[,2] <- as.numeric(stateOutcomeData[,2])
   stateOutcomeData <- stateOutcomeData[order(stateOutcomeData[2], stateOutcomeData$Name),]
-  if (num == "best") stateOutcomeData$Name[1] 
+  if (num == "best") stateranklist <- rbind(stateranklist, data.frame("state" = state, "hospital" = stateOutcomeData$Name[1]))
+  #the worst does not work right....
   if (num == "worst"){
     val <- tail(stateOutcomeData[!is.na(stateOutcomeData)], 1)
-    stateOutcomeData$Name[which(stateOutcomeData[,2] == val)]
+    stateranklist <- rbind(stateranklist, data.frame("state" = state, "hospital" = stateOutcomeData$Name[which(stateOutcomeData[,2] == val)]))
   }
-  else stateOutcomeData$Name[num]  
+  else stateranklist <- rbind(stateranklist, data.frame("state" = state, "hospital" = stateOutcomeData$Name[num]))
+  }
+  stateranklist
 }
